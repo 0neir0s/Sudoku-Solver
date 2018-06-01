@@ -1,0 +1,58 @@
+from enaml.widgets.api import Window, Label,Container, Field,Form,PushButton,Notebook,Page, MultilineField
+from enaml.layout.api import vertical, horizontal, align, spacer, vbox, hbox
+from enaml.stdlib.fields import IntField
+from sudoku import *
+
+def solve(inputString):
+
+    if inputString == '':
+        return False,''
+    inputString = inputString.replace('|','')
+    inputString = inputString.replace('\n','')
+    inputList =  inputString.split(' ')
+    inputList[:] = [v for v in inputList if v !='']
+    try:
+        inputList = [int(i) for i in inputList]
+        print len(inputList)
+        if len(inputList) != 81:
+            return False,''
+        status = Sudoku(inputList)
+        inputList = [unicode(item) for item in inputList]
+        print inputList
+        stringToPrint = "         | 0 0 0 | 0 0 0 | 0 0 0 | \n         | 0 0 0 | 0 0 0 | 0 0 0 | \n         | 0 0 0 | 0 0 0 | 0 0 0 | \n         | 0 0 0 | 0 0 0 | 0 0 0 | \n         | 0 0 0 | 0 0 0 | 0 0 0 | \n         | 0 0 0 | 0 0 0 | 0 0 0 | \n         | 0 0 0 | 0 0 0 | 0 0 0 | \n         | 0 0 0 | 0 0 0 | 0 0 0 | \n         | 0 0 0 | 0 0 0 | 0 0 0 | "
+        for item in inputList:
+            stringToPrint = stringToPrint.replace('0',item,1)
+        return status,stringToPrint
+    except:
+        return False,''
+
+enamldef functionForm(Form):
+    attr sudokuSolution
+    Container:
+        constraints = [ vbox(sudokuInput,hbox(solveButton,clearButton),statusField),sudokuInput.height == 170, sudokuInput.width == 200,align('h_center',sudokuInput) ]
+        MultilineField: sudokuInput:
+            text = "         | 0 0 0 | 0 0 0 | 0 0 0 | \n         | 0 0 0 | 0 0 0 | 0 0 0 | \n         | 0 0 0 | 0 0 0 | 0 0 0 | \n         | 0 0 0 | 0 0 0 | 0 0 0 | \n         | 0 0 0 | 0 0 0 | 0 0 0 | \n         | 0 0 0 | 0 0 0 | 0 0 0 | \n         | 0 0 0 | 0 0 0 | 0 0 0 | \n         | 0 0 0 | 0 0 0 | 0 0 0 | \n         | 0 0 0 | 0 0 0 | 0 0 0 | "
+        PushButton: solveButton:
+            text = 'Solve'
+            clicked ::
+                status,solution = solve(sudokuInput.text)
+                statusField.text = "No solution"
+                if status:
+                    statusField.text = "Solved"
+                    sudokuInput.text = solution
+        PushButton: clearButton:
+            text = 'Clear'
+            clicked ::
+                sudokuInput.text = "         | 0 0 0 | 0 0 0 | 0 0 0 | \n         | 0 0 0 | 0 0 0 | 0 0 0 | \n         | 0 0 0 | 0 0 0 | 0 0 0 | \n         | 0 0 0 | 0 0 0 | 0 0 0 | \n         | 0 0 0 | 0 0 0 | 0 0 0 | \n         | 0 0 0 | 0 0 0 | 0 0 0 | \n         | 0 0 0 | 0 0 0 | 0 0 0 | \n         | 0 0 0 | 0 0 0 | 0 0 0 | \n         | 0 0 0 | 0 0 0 | 0 0 0 | "
+                statusField.text = ''
+        Field: statusField:
+            read_only = True
+            text = ''
+
+enamldef functionView(Window):
+    title = "Sudoku Solver"
+    initial_size = (500,450)
+    attr sudokuSolution
+    functionForm:
+        sudokuSolution := parent.sudokuSolution
+
